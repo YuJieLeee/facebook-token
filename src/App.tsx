@@ -69,6 +69,9 @@ function loadFbSdk() {
 
 function App() {
   const [token, setToken] = useState("");
+  const [scopes, setScopes] = useState(
+    "pages_show_list,pages_messaging,pages_read_engagement,pages_manage_metadata,business_management"
+  );
 
   const handleFBLogin = () => {
     window.FB.login(
@@ -77,11 +80,21 @@ function App() {
         setToken(response?.authResponse?.accessToken || "");
       },
       {
-        scope:
-          "pages_show_list,pages_messaging,pages_read_engagement,pages_manage_metadata,business_management",
+        scope: scopes,
       }
     );
   };
+
+  function handleScopeChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
+    let value = e.target.value;
+    value = value.replace(/,+/g, ",");
+    value = value.replace(/\s+/g, "");
+    setScopes(value);
+  }
+
+  function handleBlur() {
+    setScopes((prev) => prev.replace(/,+/g, ","));
+  }
 
   useEffect(() => {
     initFbSdk();
@@ -90,8 +103,39 @@ function App() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+
+          flexDirection: "row",
+          gap: "10px",
+        }}
+      >
+        <label>Scopes：</label>
+        <textarea
+          value={scopes}
+          onChange={handleScopeChange}
+          onBlur={handleBlur}
+          style={{ padding: "10px", width: "500px" }}
+        />
+      </div>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          flexDirection: "row",
+          gap: "10px",
+        }}
+      >
+        <label style={{ width: "70px" }}>Token：</label>
+        <input
+          value={token}
+          readOnly
+          style={{ padding: "10px", width: "500px" }}
+        />
+      </div>
       <button onClick={handleFBLogin}>Get Token</button>
-      <input value={token} />
     </div>
   );
 }
